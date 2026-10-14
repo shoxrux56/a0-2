@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Считай! — ruscha sanashni o‘yin bilan o‘rgan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#d8f3ec;--ink:#13315c;--card:#fff;--red:#ff5a4e;--sun:#ffc933;--grape:#7b4de0;--green:#2bbf6a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font:500 17px/1.4 Rubik,system-ui,"Segoe UI",sans-serif;min-height:100vh}
+main{max-width:560px;margin:0 auto;padding:14px 16px 48px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:4px solid var(--grape);outline-offset:2px}
+[hidden]{display:none!important}
+.bar{display:flex;justify-content:space-between;align-items:center;padding:6px 0 10px}
+h1{margin:0;font-weight:800;font-size:1.8rem;line-height:1}
+h1 small{display:block;margin-top:4px;font-size:.8rem;font-weight:500;opacity:.7}
+#total{background:var(--sun);border:3px solid var(--ink);border-radius:99px;padding:4px 14px;font-weight:800;box-shadow:0 3px 0 var(--ink)}
+.hero{display:flex;gap:12px;align-items:center;margin:6px 0 18px}
+.bear{font-size:4rem;line-height:1;flex:none}
+.bubble{background:var(--card);border:3px solid var(--ink);border-radius:18px;padding:10px 14px;box-shadow:0 4px 0 var(--ink)}
+.map{display:grid;gap:12px}
+.lv{display:flex;align-items:center;gap:12px;text-align:left;background:var(--card);border:3px solid var(--ink);border-radius:18px;padding:10px 14px;box-shadow:0 5px 0 var(--ink)}
+.lv:nth-child(even){margin-left:26px}.lv:nth-child(odd){margin-right:26px}
+.lv .n{flex:none;width:46px;height:46px;border-radius:50%;background:var(--grape);color:#fff;display:grid;place-items:center;font-weight:800;border:3px solid var(--ink)}
+.lv .t{flex:1;font-weight:700}.lv small{display:block;font-weight:500;opacity:.7;font-size:.82rem}
+.lv .st{letter-spacing:1px;font-size:.95rem}
+.lv:disabled{opacity:.5;cursor:not-allowed}
+.big,.opt,.lv,.card{transition:transform .06s,box-shadow .06s}
+.big:active,.opt:active:not(:disabled),.lv:active:not(:disabled),.card:active{transform:translateY(4px);box-shadow:0 1px 0 var(--ink)}
+.big{background:var(--green);color:#fff;border:3px solid var(--ink);border-radius:16px;padding:12px 22px;font-weight:800;font-size:1.05rem;box-shadow:0 5px 0 var(--ink)}
+.big.alt{background:var(--card);color:var(--ink)}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+h2{margin:6px 0 4px;font-size:1.5rem;font-weight:800}
+.tip{background:var(--sun);border:3px solid var(--ink);border-radius:14px;padding:8px 12px;margin:8px 0 14px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.card{background:var(--card);border:3px solid var(--ink);border-radius:16px;padding:8px 6px;text-align:center;box-shadow:0 4px 0 var(--ink)}
+.card b{display:block;font-size:1.7rem;white-space:nowrap;font-weight:800;color:var(--grape)}
+.card span{display:block;font-weight:700;font-size:1.05rem}
+.card small{opacity:.7;font-size:.8rem}
+.gtop{display:flex;align-items:center;gap:10px}
+.x{background:var(--card);border:3px solid var(--ink);border-radius:50%;width:40px;height:40px;font-weight:800;flex:none}
+.prog{flex:1;height:16px;background:var(--card);border:3px solid var(--ink);border-radius:99px;overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:var(--green);transition:width .3s}
+#hearts{font-weight:800;white-space:nowrap}
+.ask{font-size:1.25rem;font-weight:700;text-align:center;margin:18px 0 8px}
+.stage{min-height:130px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;margin-bottom:12px}
+.it{position:relative;background:none;border:0;font-size:2.3rem;padding:2px;animation:pop .3s backwards}
+.it .bd{position:absolute;right:-2px;top:-4px;background:var(--grape);color:#fff;border-radius:50%;min-width:24px;height:24px;font-size:.8rem;font-weight:800;display:grid;place-items:center;border:2px solid var(--ink)}
+.it.on{opacity:.55}
+.huge{font-size:clamp(2.4rem,12vw,4rem);font-weight:800;color:var(--grape);text-align:center;width:100%;overflow-wrap:anywhere;line-height:1.1}
+.say{background:var(--sun);border:3px solid var(--ink);border-radius:50%;width:64px;height:64px;font-size:1.8rem;box-shadow:0 4px 0 var(--ink)}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opt{background:var(--card);border:3px solid var(--ink);border-radius:16px;padding:14px 8px;font-size:2rem;font-weight:800;box-shadow:0 5px 0 var(--ink);min-height:74px}
+.opt span{display:block;font-size:1.2rem;font-weight:700;overflow-wrap:anywhere;line-height:1.2}
+.opt small{display:block;font-size:.8rem;font-weight:500;opacity:.7}
+.opt.good{background:var(--green);color:#fff}
+.opt.bad{background:var(--red);color:#fff;animation:shake .35s}
+.opt:disabled{cursor:default}
+.fb{margin-top:18px;border:3px solid var(--ink);border-radius:18px;padding:12px 14px;background:var(--card);box-shadow:0 5px 0 var(--ink)}
+.fb.ok{background:#c9f5da}.fb.no{background:#ffd9d5}
+.fb .m{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+.fb .m span:first-child{font-size:2.4rem}
+.end{text-align:center;padding-top:20px}
+.end .e{font-size:5rem;line-height:1}
+.end .s{font-size:2.4rem;margin:8px 0}
+.cf{position:fixed;top:-50px;font-size:1.8rem;pointer-events:none;animation:fall 2.4s linear forwards;z-index:9}
+@keyframes pop{from{transform:scale(0)}}
+@keyframes shake{25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+@keyframes fall{to{transform:translateY(115vh) rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <div class="bar"><h1 lang="ru">Считай!<small>Ruscha sanashni o‘yin bilan o‘rgan</small></h1><div id="total">⭐ 0</div></div>
+
+  <section id="home">
+    <div class="hero"><div class="bear">🐻</div>
+      <div class="bubble"><b lang="ru">Привет!</b> (Salom!) Men Mishka. Birga ruscha sanashni o‘rganamiz. Darajani tanla!</div></div>
+    <div class="map" id="map"></div>
+  </section>
+
+  <section id="learn" hidden>
+    <h2 id="lTitle"></h2>
+    <div class="tip" id="lTip"></div>
+    <div class="cards" id="cards"></div>
+    <div class="row"><button class="big" id="go">O‘yinni boshlash</button><button class="big alt" id="lBack">Orqaga</button></div>
+  </section>
+
+  <section id="game" hidden>
+    <div class="gtop"><button class="x" id="quit" aria-label="Chiqish">✕</button><div class="prog"><i id="pb"></i></div><div id="hearts"></div></div>
+    <p class="ask" id="ask"></p>
+    <div class="stage" id="stage"></div>
+    <div class="opts" id="opts"></div>
+    <div class="fb" id="fb" hidden>
+      <div class="m"><span id="fbe">🐻</span><div id="fbt"></div></div>
+      <button class="big" id="cont">Davom</button>
+    </div>
+  </section>
+
+  <section id="end" class="end" hidden>
+    <div class="e" id="eI"></div><h2 id="eT"></h2><div class="s" id="eS"></div><p id="eP"></p>
+    <div class="row" style="justify-content:center">
+      <button class="big" id="again">Yana o‘ynash</button>
+      <button class="big alt" id="nextLv">Keyingi daraja</button>
+      <button class="big alt" id="toMap">Xarita</button>
+    </div>
+  </section>
+</main>
+
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const TTS = 'speechSynthesis' in window;
+
+/* ---- Rus sonlari: [ruscha, o‘qilishi] ---- */
+const U=[['ноль','nol'],['один','adin'],['два','dva'],['три','tri'],['четыре','chetire'],['пять','pyat'],['шесть','shest'],['семь','sem'],['восемь','vosem'],['девять','devyat']];
+const T=[['десять','desyat'],['одиннадцать','adinatsat'],['двенадцать','dvenatsat'],['тринадцать','trinatsat'],['четырнадцать','chetirnatsat'],['пятнадцать','pyatnatsat'],['шестнадцать','shestnatsat'],['семнадцать','semnatsat'],['восемнадцать','vosemnatsat'],['девятнадцать','devyatnatsat']];
+const D=[,,['двадцать','dvatsat'],['тридцать','tritsat'],['сорок','sorok'],['пятьдесят','pyatdesyat'],['шестьдесят','shestdesyat'],['семьдесят','semdesyat'],['восемьдесят','vosemdesyat'],['девяносто','devyanosto']];
+const H=[,['сто','sto'],['двести','dvesti'],['триста','trista'],['четыреста','chetirista'],['пятьсот','pyatsot'],['шестьсот','shestsot'],['семьсот','semsot'],['восемьсот','vosemsot'],['девятьсот','devyatsot']];
+const TH=[['тысяча','tysyacha'],['тысячи','tysyachi'],['тысяч','tysyach']];
+const ML=[['миллион','milyon'],['миллиона','milyona'],['миллионов','milyonov']];
+const form=(v,f)=>{const k=v%100,d=v%10;return d===1&&k!==11?f[0]:(d>=2&&d<=4&&(k<12||k>14))?f[1]:f[2]};
+function trip(v,fem){
+  const p=[],h=v/100|0,r=v%100;
+  if(h) p.push(H[h]);
+  if(r>=20){ p.push(D[r/10|0]); if(r%10) p.push(fem&&r%10===1?['одна','adna']:fem&&r%10===2?['две','dve']:U[r%10]); }
+  else if(r>=10) p.push(T[r-10]);
+  else if(r) p.push(fem&&r===1?['одна','adna']:fem&&r===2?['две','dve']:U[r]);
+  return p;
+}
+function parts(n){
+  if(n===0) return [U[0]];
+  const m=n/1e6|0, t=(n/1000|0)%1000, r=n%1000, p=[];
+  if(m) p.push(...trip(m,false),form(m,ML));
+  if(t) p.push(...trip(t,true),form(t,TH));
+  if(r) p.push(...trip(r,false));
+  return p;
+}
+const fmt=n=>String(n).replace(/\B(?=(\d{3})+$)/g,'\u00a0');
+const ru = n => parts(n).map(x=>x[0]).join(' ');
+const pr = n => parts(n).map(x=>x[1]).join(' ');
+const range=(a,b,s=1)=>{const r=[];for(let i=a;i<=b;i+=s)r.push(i);return r};
+
+/* ---- Darajalar ---- */
+const L=[
+ {name:'Birinchi qadamlar',sub:'1–5',lo:1,hi:5,learn:range(0,5),tip:'Kartani bosing — Mishka ruscha aytadi 🔊'},
+ {name:'Oltidan o‘ngacha',sub:'6–10',lo:6,hi:10,learn:range(6,10),tip:'10 — десять. Bu so‘z keyingi sonlarda ham uchraydi.'},
+ {name:'O‘n bir – yigirma',sub:'11–20',lo:11,hi:20,learn:range(11,20),tip:'11–19 hammasi «-надцать» bilan tugaydi (одиннадцать, двенадцать…).'},
+ {name:'O‘nliklar',sub:'10, 20 … 100',lo:10,hi:100,ok:n=>n%10===0,learn:range(10,100,10),tip:'«-десят» — o‘nlik. Lekин сорок, девяносто va сто alohida so‘zlar!'},
+ {name:'Murakkab sonlar',sub:'21–99',lo:21,hi:99,ok:n=>n%10!==0,learn:[21,22,35,48,56,67,79,84,93,99],tip:'Avval o‘nlik, keyin birlik: 21 = двадцать + один.'},
+ {name:'Yuzliklar',sub:'100, 200 … 900',lo:100,hi:900,ok:n=>n%100===0,learn:range(100,900,100),tip:'сто, двести, триста, четыреста, пятьсот… — oxiri o‘zgaradi.'},
+ {name:'Katta sonlar',sub:'101–999',lo:101,hi:999,ok:n=>n%100!==0,learn:[101,125,250,333,478,515,699,999],tip:'Yuzlik + o‘nlik + birlik: 345 = триста сорок пять.'},
+ {name:'Minglar',sub:'1 000 … 10 000',lo:1000,hi:10000,ok:n=>n%1000===0,learn:range(1000,10000,1000),tip:'1 → тысяча, 2–4 → тысячи, 5 va undan ko‘p → тысяч. «Ming» ayol rodida: одна тысяча, две тысячи!'},
+ {name:'Ming sonlari',sub:'1 001 … 99 999',lo:1001,hi:99999,ok:n=>n%1000!==0,learn:[1001,2005,3500,11000,15000,21000,25300,45678,99999],tip:'Avval ming qismi, keyin qolgani: 21 345 = двадцать одна тысяча триста сорок пять.'},
+ {name:'Million',sub:'1 000 000 … 9 000 000',lo:1000000,hi:9000000,ok:n=>n%1000000===0,learn:range(1000000,9000000,1000000),tip:'1 → миллион, 2–4 → миллиона, 5 va undan ko‘p → миллионов.'}
+];
+const PRAISE=[['Молодец!','Barakalla!'],['Отлично!','Ajoyib!'],['Умница!','Aqlli bola!'],['Супер!','Zo‘r!'],['Правильно!','To‘g‘ri!']];
+const OOPS=[['Ничего!','Hechqisi yo‘q!'],['Ещё раз!','Yana urinib ko‘r!']];
+const EMO=['🍎','⭐','🐟','🚗','🎈','🐱','🍪','🌸'];
+
+/* ---- Saqlash ---- */
+let prog=[];
+try{prog=JSON.parse(localStorage.getItem('sanash-v1'))||[]}catch(e){}
+const store=()=>{try{localStorage.setItem('sanash-v1',JSON.stringify(prog))}catch(e){}};
+
+/* ---- Ovoz ---- */
+function say(t){
+  if(!TTS) return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(t); u.lang='ru-RU'; u.rate=.8;
+  const v=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.toLowerCase().startsWith('ru'));
+  if(v) u.voice=v;
+  speechSynthesis.speak(u);
+}
+let ac;
+function beep(ok){
+  try{
+    ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+    const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime;
+    o.connect(g); g.connect(ac.destination);
+    o.type=ok?'triangle':'sawtooth';
+    o.frequency.setValueAtTime(ok?660:180,t); if(ok) o.frequency.setValueAtTime(990,t+.1);
+    g.gain.setValueAtTime(.15,t); g.gain.exponentialRampToValueAtTime(.001,t+.3);
+    o.start(t); o.stop(t+.3);
+  }catch(e){}
+}
+function confetti(){
+  if(matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+  for(let i=0;i<28;i++){
+    const s=document.createElement('span'); s.className='cf'; s.textContent=['⭐','🎈','🎉','🍎'][i%4];
+    s.style.left=Math.random()*95+'vw'; s.style.animationDelay=Math.random()*.8+'s';
+    document.body.append(s); setTimeout(()=>s.remove(),3300);
+  }
+}
+
+/* ---- Ekranlar ---- */
+const show=id=>{document.querySelectorAll('main>section').forEach(s=>s.hidden=s.id!==id);scrollTo(0,0)};
+const sum=()=>prog.reduce((a,b)=>a+(b||0),0);
+let cur=0, g={};
+
+function home(){
+  show('home'); if(TTS) speechSynthesis.cancel();
+  $('#total').textContent='⭐ '+sum();
+  const m=$('#map'); m.replaceChildren();
+  L.forEach((l,i)=>{
+    const open=i===0||prog[i-1]>0, s=prog[i]||0;
+    const b=document.createElement('button'); b.className='lv'; b.disabled=!open;
+    b.innerHTML=`<span class="n">${open?i+1:'🔒'}</span><span class="t">${l.name}<small>${l.sub}</small></span><span class="st">${'⭐'.repeat(s)}${'☆'.repeat(3-s)}</span>`;
+    b.onclick=()=>learn(i); m.append(b);
+  });
+}
+
+function learn(i){
+  cur=i; const l=L[i]; show('learn');
+  $('#lTitle').textContent=`${i+1}-daraja: ${l.name}`;
+  $('#lTip').textContent='💡 '+l.tip;
+  const c=$('#cards'); c.replaceChildren();
+  l.learn.forEach(n=>{
+    const b=document.createElement('button'); b.className='card';
+    b.innerHTML=`<b>${fmt(n)}</b><span lang="ru">${ru(n)}</span><small>${pr(n)}</small>`;
+    b.onclick=()=>say(ru(n)); c.append(b);
+  });
+}
+
+/* ---- O‘yin ---- */
+const rnd=l=>{let n;do{n=l.lo+Math.floor(Math.random()*(l.hi-l.lo+1))}while(l.ok&&!l.ok(n));return n};
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+
+function distract(n,l){
+  const c=[]; [1,2,3,5,10,20,30,100,200,1000,2000,1000000,2000000].forEach(d=>c.push(n+d,n-d)); shuffle(c);
+  const r=[];
+  for(const x of c){ if(x>=l.lo&&x<=l.hi&&(!l.ok||l.ok(x))&&x!==n&&!r.includes(x)) r.push(x); if(r.length===3) break; }
+  while(r.length<3){const x=rnd(l); if(x!==n&&!r.includes(x)) r.push(x);}
+  return r;
+}
+
+function start(){ g={q:0,hearts:3,wrong:0,streak:0,last:-1}; show('game'); hud(); ask(); }
+
+function hud(){
+  $('#hearts').textContent='❤️'.repeat(g.hearts)+'🖤'.repeat(3-g.hearts)+(g.streak>1?' 🔥'+g.streak:'');
+  $('#pb').style.width=g.q*10+'%';
+}
+
+function ask(){
+  const l=L[cur]; let n; do{n=rnd(l)}while(n===g.last&&l.hi-l.lo>1); g.last=n; g.n=n;
+  const ts=n<=20?['count','read','word']:['read','word']; if(TTS) ts.push('listen','listen');
+  const t=ts[Math.random()*ts.length|0];
+  $('#fb').hidden=true;
+  const st=$('#stage'), o=$('#opts'); st.replaceChildren(); o.replaceChildren();
+  const sayBtn=()=>{const b=document.createElement('button');b.className='say';b.textContent='🔊';b.setAttribute('aria-label','Tinglash');b.onclick=()=>say(ru(n));return b};
+
+  if(t==='count'){
+    $('#ask').textContent='Narsalarga bosib sana, so‘ng ruscha javobni tanla 👆';
+    const e=EMO[Math.random()*EMO.length|0]; let k=0;
+    for(let i=0;i<n;i++){
+      const b=document.createElement('button'); b.className='it'; b.textContent=e; b.style.animationDelay=i*35+'ms';
+      b.onclick=()=>{ if(b.classList.contains('on')) return; b.classList.add('on'); k++;
+        const d=document.createElement('span'); d.className='bd'; d.textContent=k; b.append(d); say(ru(k)); };
+      st.append(b);
+    }
+  } else if(t==='read'){
+    $('#ask').textContent='Bu qaysi son?';
+    const h=document.createElement('div'); h.className='huge'; h.lang='ru'; h.textContent=ru(n);
+    st.append(h,sayBtn());
+  } else if(t==='listen'){
+    $('#ask').textContent='Eshit va sonni tanla';
+    st.append(sayBtn()); setTimeout(()=>say(ru(n)),250);
+  } else {
+    $('#ask').textContent='Ruscha qanday aytiladi?';
+    const h=document.createElement('div'); h.className='huge'; h.textContent=fmt(n); st.append(h);
+  }
+
+  const digits=t==='read'||t==='listen';
+  shuffle([n,...distract(n,l)]).forEach(v=>{
+    const b=document.createElement('button'); b.className='opt'; b.dataset.v=v;
+    if(digits) b.textContent=fmt(v); else b.innerHTML=`<span lang="ru">${ru(v)}</span><small>${pr(v)}</small>`;
+    b.onclick=()=>pick(b,v); o.append(b);
+  });
+}
+
+function pick(b,v){
+  const n=g.n, ok=v===n;
+  document.querySelectorAll('.opt').forEach(x=>{x.disabled=true; if(+x.dataset.v===n) x.classList.add('good');});
+  if(ok) g.streak++; else { b.classList.add('bad'); g.hearts--; g.wrong++; g.streak=0; }
+  g.q++; hud(); beep(ok); setTimeout(()=>say(ru(n)),400);
+  const m=(ok?PRAISE:OOPS)[Math.random()*(ok?PRAISE:OOPS).length|0];
+  const fb=$('#fb'); fb.className='fb '+(ok?'ok':'no'); fb.hidden=false;
+  $('#fbe').textContent=ok?'🐻':'🙈';
+  $('#fbt').innerHTML=`<b lang="ru">${m[0]}</b> (${m[1]})<br>${fmt(n)} = <b lang="ru">${ru(n)}</b> <small>(${pr(n)})</small>`;
+  $('#cont').focus();
+}
+
+function finish(pass){
+  const stars=pass?Math.max(1,3-g.wrong):0;
+  if(pass&&stars>(prog[cur]||0)){prog[cur]=stars;store();}
+  $('#total').textContent='⭐ '+sum();
+  $('#eI').textContent=pass?'🏆':'🐻';
+  $('#eT').textContent=pass?'Ajoyib, daraja tugadi!':'Hechqisi yo‘q, yana urinib ko‘ramiz!';
+  $('#eS').textContent=pass?'⭐'.repeat(stars)+'☆'.repeat(3-stars):'☆☆☆';
+  $('#eP').textContent=pass?'Xatolar soni: '+g.wrong:'Avval kartalarni takrorla, keyin yana o‘yna.';
+  $('#nextLv').hidden=!(pass&&cur<L.length-1);
+  show('end'); if(pass) confetti();
+}
+
+/* ---- Tugmalar ---- */
+$('#go').onclick=start;
+$('#lBack').onclick=home;
+$('#quit').onclick=()=>{ if(confirm('O‘yindan chiqasanmi?')) home(); };
+$('#cont').onclick=()=>{ if(g.hearts<=0) finish(false); else if(g.q>=10) finish(true); else ask(); };
+$('#again').onclick=start;
+$('#nextLv').onclick=()=>learn(cur+1);
+$('#toMap').onclick=home;
+if(TTS) speechSynthesis.getVoices();
+
+home();
+})();
+</script>
+</body>
+</html>
