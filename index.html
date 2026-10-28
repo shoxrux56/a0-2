@@ -67,6 +67,11 @@ h1,h2{text-align:center;margin:10px 0}
 .ck{font-size:.75rem;font-weight:800;background:var(--gl);border-radius:8px;padding:4px 8px;text-align:center}
 mark{background:var(--y);color:#222;border-radius:4px;padding:0 3px}
 .warn{background:#fff3cd;color:#664d03;padding:8px 10px;border-radius:10px;font-size:.88rem;margin:8px 0}
+.splash{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;min-height:80vh}
+.splash .btn{max-width:320px}
+.camel{width:190px;animation:bob 1s ease-in-out infinite alternate}
+@keyframes bob{to{transform:translateY(-8px)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
 </head>
 <body>
@@ -94,17 +99,58 @@ try{const x=JSON.parse(localStorage.getItem("rus5000"));if(x)S=x}catch(e){}
 const save=()=>{try{localStorage.setItem("rus5000",JSON.stringify(S))}catch(e){}};
 const $=s=>document.querySelector(s),app=h=>{$("#app").innerHTML=h};
 const shuf=a=>[...a].sort(()=>Math.random()-.5),pick=a=>a[Math.floor(Math.random()*a.length)];
-let voice=null;
-function pv(){const v=speechSynthesis.getVoices();voice=v.find(x=>/^ru/i.test(x.lang))||null}
-if("speechSynthesis" in window){pv();speechSynthesis.onvoiceschanged=pv}
-function speak(t){if(!("speechSynthesis" in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang="ru-RU";if(voice)u.voice=voice;u.rate=.85;speechSynthesis.speak(u)}
+
+/* ===== OVOZ TIZIMI ===== */
+let voice=null,AU=null,AC=null,SOUND=false,SID=0;
+const SIL='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
+function pv(){try{voice=speechSynthesis.getVoices().find(x=>/^ru/i.test(x.lang))||null}catch(e){}}
+try{pv();speechSynthesis.onvoiceschanged=pv}catch(e){}
+// Birinchi bosishda brauzer ovozni ochadi
+function unlock(){
+ try{const C=window.AudioContext||window.webkitAudioContext;if(C){AC=AC||new C();if(AC.state==="suspended")AC.resume()}}catch(e){}
+ try{AU=new Audio();AU.src=SIL;const p=AU.play();if(p&&p.catch)p.catch(()=>{})}catch(e){}
+ try{const u=new SpeechSynthesisUtterance(" ");u.volume=0;speechSynthesis.speak(u)}catch(e){}
+}
+// Zaxira: Google ovozi (telefonda rus ovozi bo'lmasa). Bitta Audio elementi, ketma-ket chalinadi.
+function web(list,id){
+ let i=0;
+ const next=()=>{
+  if(id!==SID||i>=list.length)return;
+  try{
+   if(!AU)AU=new Audio();
+   AU.onended=next;AU.onerror=next;
+   AU.src="https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=ru&q="+encodeURIComponent(list[i++]);
+   const p=AU.play();if(p&&p.catch)p.catch(()=>{});
+  }catch(e){}
+ };
+ try{speechSynthesis.cancel()}catch(e){}
+ next();
+}
+function speakList(list,rate){
+ if(!SOUND)return;
+ const id=++SID;
+ if(!voice||!("speechSynthesis" in window))return web(list,id);
+ let started=false;
+ const us=list.map((t,k)=>{
+  const u=new SpeechSynthesisUtterance(t);
+  u.lang="ru-RU";u.voice=voice;u.rate=rate;
+  if(k===0){u.onstart=()=>{started=true};u.onerror=()=>{if(!started&&id===SID)web(list,id)}}
+  return u;
+ });
+ window._us=us;
+ try{speechSynthesis.cancel()}catch(e){}
+ setTimeout(()=>{if(id!==SID)return;try{us.forEach(u=>speechSynthesis.speak(u))}catch(e){}},80);
+ setTimeout(()=>{if(!started&&id===SID){try{speechSynthesis.cancel()}catch(e){}web(list,id)}},1500);
+}
+function speak(t){speakList([t],.85)}
+function seq(l){speakList(l.map(ru),.8)}
+
 function kind(n){if(n>=1000)return"MING";if(n>=100)return"YUZLIK";if(n>=20)return n%10?"o'nlik+birlik":"O'NLIK";if(n>=11)return"11–19";return"BIRLIK"}
 const mk=n=>ru(n).replace(/(надцать|десят|сот|тысяч\w*)/,"<mark>$1</mark>");
-function seq(l){if(!("speechSynthesis" in window))return;speechSynthesis.cancel();l.forEach(n=>{const u=new SpeechSynthesisUtterance(ru(n));u.lang="ru-RU";if(voice)u.voice=voice;u.rate=.8;speechSynthesis.speak(u)})}
 function cmpHtml(l){return `<div class="tipb"><b>⚖️ Farqini eshiting:</b>${l.map(n=>`<div class="cr" data-n="${n}"><span class="cn">${n}</span><span class="cw">${mk(n)}<small>${uz(n)}</small></span><span class="ck">${kind(n)}</span></div>`).join("")}<button class="btn s" id="sq" style="margin-top:12px">🔊 Hammasini ketma-ket</button></div>`}
 const topbar=()=>`<div class="top"><div class="av">${S.av}</div><span>🔥 ${S.streak}</span><span>⭐ ${S.xp}</span></div>`;
 function setup(){app(`<h1>🇷🇺 Rus raqamlari</h1><h2 style="font-size:1.1rem">Avatar tanlang</h2><div class="avs">${AV.map(a=>`<button class="avb" data-a="${a}">${a}</button>`).join("")}</div>`);document.querySelectorAll(".avb").forEach(b=>b.onclick=()=>{S.av=b.dataset.a;save();home()})}
-function home(){let h=topbar()+`<h2>1 dan 5000 gacha yo'l</h2>`;if("speechSynthesis" in window&&speechSynthesis.getVoices().length&&!voice)h+=`<div class="warn">Rus ovozi topilmadi. Telefon sozlamalaridan Russian ovozini yoqing.</div>`;h+=`<div class="path">`;const off=[0,46,70,46,0,-46,-70];LES.forEach((l,i)=>{const st=i<S.done?"done":i===S.done?"cur":"lock";h+=`<div class="node" style="transform:translateX(${off[i%7]}px)">${st==="cur"?`<div class="bub">${S.av} Boshla!</div>`:""}<button class="nb ${st}" data-i="${i}" ${st==="lock"?"disabled":""}>${st==="done"?"✓":l.ic}</button><div class="nl">${l.t}</div></div>`});app(h+`</div>`);document.querySelectorAll(".nb").forEach(b=>b.onclick=()=>intro(+b.dataset.i))}
+function home(){let h=topbar()+`<h2>1 dan 5000 gacha yo'l</h2>`;h+=`<div class="path">`;const off=[0,46,70,46,0,-46,-70];LES.forEach((l,i)=>{const st=i<S.done?"done":i===S.done?"cur":"lock";h+=`<div class="node" style="transform:translateX(${off[i%7]}px)">${st==="cur"?`<div class="bub">${S.av} Boshla!</div>`:""}<button class="nb ${st}" data-i="${i}" ${st==="lock"?"disabled":""}>${st==="done"?"✓":l.ic}</button><div class="nl">${l.t}</div></div>`});app(h+`</div>`);document.querySelectorAll(".nb").forEach(b=>b.onclick=()=>intro(+b.dataset.i))}
 let LI=0,Q=null,busy=false;
 function intro(i){LI=i;const l=LES[i],sh=l.show||l.n;app(`<div class="qh"><button class="x" id="bk">✕</button><b>${l.t}</b></div><div class="tipb">${S.av} ${l.tip}</div><div class="cards">${sh.map(n=>`<button class="cd" data-n="${n}"><b>${n}</b><span>${ru(n)}</span><small>${uz(n)}</small></button>`).join("")}</div>${l.cmp?cmpHtml(l.cmp):""}<button class="btn" id="st" style="margin-top:14px">Boshlash</button>`);$("#bk").onclick=home;$("#st").onclick=start;document.querySelectorAll(".cd").forEach(c=>c.onclick=()=>speak(ru(+c.dataset.n)));document.querySelectorAll(".cr").forEach(c=>c.onclick=()=>speak(ru(+c.dataset.n)));const sq=$("#sq");if(sq)sq.onclick=()=>seq(l.cmp)}
 function distract(n,P,lv){let a=[],b=[];if(lv>=3){a=[n*10,n*100,n+10,(n%10)*10,n-10];b=[n%10,Math.floor(n/10),n+1,n-1]}const ok=x=>Number.isInteger(x)&&x>=0&&x<=5000&&x!==n&&(x>0||P.includes(0));let c=shuf([...new Set(a)].filter(ok)).concat(shuf([...new Set(b)].filter(ok)));c=c.slice(0,3);if(c.length<3)c.push(...shuf(P.filter(x=>x!==n&&!c.includes(x))).slice(0,3-c.length));return c}
@@ -121,7 +167,19 @@ $("#go").onclick=()=>{if(Q.hearts<=0)fail();else if(!Q.list.length)fin();else qr
 function fail(){app(`<div class="end"><div class="big">💔</div><h2>Yuraklar tugadi</h2><p>Hechqisi yo'q, qayta urinib ko'ring!</p><button class="btn" id="rt">Qayta urinish</button><br><button class="btn s" id="hm">Yo'lga qaytish</button></div>`);$("#rt").onclick=()=>intro(LI);$("#hm").onclick=home}
 function fin(){S.xp+=20;S.done=Math.max(S.done,LI+1);const td=new Date().toDateString();if(S.last!==td){const y=new Date(Date.now()-864e5).toDateString();S.streak=S.last===y?S.streak+1:1;S.last=td}save();const last=LI===LES.length-1;
 app(`<div class="end"><div class="big"><span class="fav hop">${S.av}</span></div><h2>${last?"🏆 Siz 5000 gacha o'rgandingiz!":"🎉 Dars tugadi!"}</h2><p>⭐ +${Q.total*10+20} ball &nbsp; ❤️ ${Q.hearts}</p><button class="btn" id="hm">Davom</button></div>`);$("#hm").onclick=home}
-S.av?home():setup();
+
+/* ===== Birinchi ekran: tuya va "Boshlash" tugmasi ===== */
+const CAMEL='<svg viewBox="0 0 100 100" aria-hidden="true"><g fill="#d9a05b"><path d="M16 58Q8 62 10 78" stroke="#c98b45" stroke-width="5" stroke-linecap="round" fill="none"/><rect x="24" y="70" width="9" height="24" rx="4.5"/><rect x="38" y="72" width="9" height="22" rx="4.5"/><rect x="56" y="72" width="9" height="22" rx="4.5"/><rect x="70" y="70" width="9" height="24" rx="4.5"/><ellipse cx="37" cy="38" rx="11" ry="15" fill="#c98b45"/><ellipse cx="60" cy="38" rx="11" ry="15" fill="#c98b45"/><ellipse cx="49" cy="62" rx="32" ry="19"/><path d="M66 58Q80 54 76 30L90 30Q92 58 82 72Z"/><ellipse cx="85" cy="26" rx="12" ry="9"/></g><ellipse cx="49" cy="64" rx="15" ry="9" fill="#1cb0f6"/><ellipse cx="49" cy="64" rx="8" ry="4" fill="#ffc800"/><ellipse cx="78" cy="15" rx="3" ry="5" fill="#c98b45"/><circle cx="83" cy="23" r="3.5" fill="#3c3c3c"/><circle cx="84" cy="22" r="1.2" fill="#fff"/><circle cx="90" cy="30" r="3" fill="#ff8a8a" opacity=".7"/><path d="M92 25q2 1 2 4" stroke="#8a5a28" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>';
+function splash(){
+ app(`<div class="splash"><div class="camel">${CAMEL}</div><button class="btn" id="stt">Boshlash</button></div>`);
+ $("#stt").onclick=()=>{
+  SOUND=true;
+  unlock();
+  setTimeout(()=>speak("Привет!"),150);
+  S.av?home():setup();
+ };
+}
+splash();
 </script>
 </body>
 </html>
