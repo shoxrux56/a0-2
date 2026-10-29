@@ -101,46 +101,28 @@ const $=s=>document.querySelector(s),app=h=>{$("#app").innerHTML=h};
 const shuf=a=>[...a].sort(()=>Math.random()-.5),pick=a=>a[Math.floor(Math.random()*a.length)];
 
 /* ===== OVOZ TIZIMI ===== */
-let voice=null,AU=null,AC=null,SOUND=false,SID=0;
-const SIL='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
+let voice=null,AC=null,SOUND=false,SID=0;
 function pv(){try{voice=speechSynthesis.getVoices().find(x=>/^ru/i.test(x.lang))||null}catch(e){}}
 try{pv();speechSynthesis.onvoiceschanged=pv}catch(e){}
 // Birinchi bosishda brauzer ovozni ochadi
 function unlock(){
  try{const C=window.AudioContext||window.webkitAudioContext;if(C){AC=AC||new C();if(AC.state==="suspended")AC.resume()}}catch(e){}
- try{AU=new Audio();AU.src=SIL;const p=AU.play();if(p&&p.catch)p.catch(()=>{})}catch(e){}
  try{const u=new SpeechSynthesisUtterance(" ");u.volume=0;speechSynthesis.speak(u)}catch(e){}
-}
-// Zaxira: Google ovozi (telefonda rus ovozi bo'lmasa). Bitta Audio elementi, ketma-ket chalinadi.
-function web(list,id){
- let i=0;
- const next=()=>{
-  if(id!==SID||i>=list.length)return;
-  try{
-   if(!AU)AU=new Audio();
-   AU.onended=next;AU.onerror=next;
-   AU.src="https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=ru&q="+encodeURIComponent(list[i++]);
-   const p=AU.play();if(p&&p.catch)p.catch(()=>{});
-  }catch(e){}
- };
- try{speechSynthesis.cancel()}catch(e){}
- next();
 }
 function speakList(list,rate){
  if(!SOUND)return;
  const id=++SID;
- if(!voice||!("speechSynthesis" in window))return web(list,id);
+ if(!voice||!("speechSynthesis" in window))return;
  let started=false;
  const us=list.map((t,k)=>{
   const u=new SpeechSynthesisUtterance(t);
   u.lang="ru-RU";u.voice=voice;u.rate=rate;
-  if(k===0){u.onstart=()=>{started=true};u.onerror=()=>{if(!started&&id===SID)web(list,id)}}
+  if(k===0){u.onstart=()=>{started=true};}
   return u;
  });
  window._us=us;
  try{speechSynthesis.cancel()}catch(e){}
  setTimeout(()=>{if(id!==SID)return;try{us.forEach(u=>speechSynthesis.speak(u))}catch(e){}},80);
- setTimeout(()=>{if(!started&&id===SID){try{speechSynthesis.cancel()}catch(e){}web(list,id)}},1500);
 }
 function speak(t){speakList([t],.85)}
 function seq(l){speakList(l.map(ru),.8)}
